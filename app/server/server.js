@@ -33,9 +33,6 @@ const express = require('express'),
     }, function(accessToken, refreshToken, extraParams, profile, done){
 
         const db = app.get('db')
-
-         console.log(profile)
-
         db.find_user(profile.id).then(user => {
             if(user[0]){
                 return done(null, user)
@@ -63,6 +60,20 @@ const express = require('express'),
         successRedirect: 'http://localhost:3000',
         failureRedirect: 'http:/localhost:300/#/'
     }))
+
+    app.get('/auth/me', (req, res) => {
+        console.log(req.user)
+        if(!req.user){
+            return res.status(404).send('User not found')
+        } else {
+            return res.status(200).send(req.user)
+        }
+    })
+
+    app.get('/auth/logout', (req, res) => {
+        req.logOut() //Passport gives us this to terminate a login session
+        return res.redirect(302, 'http://localhost:3000/#/') //res.redirect comes from Express to redirect the user to the given url. 302 is the default status code for res.redirect.
+    })
 
 
     let PORT = 3005
